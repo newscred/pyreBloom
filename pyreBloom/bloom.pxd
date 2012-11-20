@@ -36,9 +36,12 @@ cdef extern from "bloom.h":
         float    error
         uint32_t * seeds
         unsigned char * key
+        char          * password
         redisContext * ctxt
 
-    bint init_pyrebloom(pyrebloomctxt * ctxt, unsigned char * key, uint32_t capacity, float error, char* host, uint32_t port)
+    bint init_pyrebloom(pyrebloomctxt * ctxt, unsigned char * key,
+        uint32_t capacity, float error, char* host, uint32_t port,
+        char* password)
     bint free_pyrebloom(pyrebloomctxt * ctxt)
     
     bint add(pyrebloomctxt * ctxt, char * data, uint32_t len)

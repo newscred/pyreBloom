@@ -6,15 +6,34 @@ import random
 import string
 import unittest
 import pyreBloom
+from pyreBloom import pyreBloomException
 
 
 class FunctionalityTest(unittest.TestCase):
     '''Check some basic functionality requirements'''
+    def setUp(self):
+        self.bloom = pyreBloom.pyreBloom('pyreBloomTesting', 200000000, 0.00001)
+        self.bloom.delete()
+
+    def tearDown(self):
+        self.setUp()
+
     def test_connection_refused(self):
         '''In this test I want to make sure that we can catch errors when
         connecting to a redis instance'''
         self.assertRaises(pyreBloom.pyreBloomException, pyreBloom.pyreBloom,
             'pyreBloomTesting', 100, 0.01, port=1234)
+
+    def test_error(self):
+        '''If we encounter a redis error, we should raise exceptions'''
+        self.bloom.delete()
+        from redis import Redis
+        redis = Redis()
+        redis.hmset('pyreBloomTesting.0', {'hello': 5})
+        self.assertRaises(pyreBloomException, self.bloom.add, 'hello')
+        self.assertRaises(pyreBloomException, self.bloom.extend, ['a', 'b'])
+        self.assertRaises(pyreBloomException, self.bloom.contains, 'a')
+        self.assertRaises(pyreBloomException, self.bloom.contains, ['a', 'b'])
 
 
 class Accuracytest(unittest.TestCase):
