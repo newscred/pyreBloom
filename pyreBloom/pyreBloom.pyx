@@ -53,6 +53,9 @@ cdef class pyreBloom(object):
 	
 	def delete(self):
 		bloom.delete(&self.context)
+		
+		if self.context.ctxt.err:
+			raise pyreBloomException(self.context.ctxt.errstr)
 	
 	def put(self, value):
 		if getattr(value, '__iter__', False):
@@ -61,6 +64,9 @@ cdef class pyreBloom(object):
 		else:
 			bloom.add(&self.context, value, len(value))
 			bloom.add_complete(&self.context, 1)
+		
+		if self.context.ctxt.err:
+			raise pyreBloomException(self.context.ctxt.errstr)
 	
 	def add(self, value):
 		self.put(value)
@@ -72,10 +78,15 @@ cdef class pyreBloom(object):
 		# If the object is 'iterable'...
 		if getattr(value, '__iter__', False):
 			r = [bloom.check(&self.context, v, len(v)) for v in value]
-			return [v for v in value if bloom.check_next(&self.context)]
+			is_member = [v for v in value if bloom.check_next(&self.context)]
 		else:
 			bloom.check(&self.context, value, len(value))
-			return bool(bloom.check_next(&self.context))
+			is_member = bool(bloom.check_next(&self.context))
+
+		if self.context.ctxt.err:
+			raise pyreBloomException(self.context.ctxt.errstr)
+
+		return is_member
 	
 	def __contains__(self, value):
 		return self.contains(value)

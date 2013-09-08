@@ -70,6 +70,9 @@ int add_complete(pyrebloomctxt * ctxt, uint32_t count) {
 	
 	for (i = 0; i < ctxt->hashes * count; ++i) {
 		redisGetReply(ctxt->ctxt, (void**)(&reply));
+		if (ctxt->ctxt->err == REDIS_ERR_EOF) {
+			return -1;
+		}
 		freeReplyObject(reply);
 	}
 	return 1;
@@ -89,6 +92,9 @@ int check_next(pyrebloomctxt * ctxt) {
 	redisReply * reply;
 	for (i = 0; i < ctxt->hashes; ++i) {
 		redisGetReply(ctxt->ctxt, (void**)(&reply));
+		if (ctxt->ctxt->err == REDIS_ERR_EOF) {
+			return -1;
+		}
 		result = result && reply->integer;
 		freeReplyObject(reply);
 	}
@@ -98,6 +104,9 @@ int check_next(pyrebloomctxt * ctxt) {
 int delete(pyrebloomctxt * ctxt) {
 	redisReply * reply;
 	reply = redisCommand(ctxt->ctxt, "DEL %s", ctxt->key);
+	if (ctxt->ctxt->err == REDIS_ERR_EOF) {
+		return -1;
+	}
 	freeReplyObject(reply);
 	return 1;
 }
