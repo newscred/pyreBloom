@@ -19,7 +19,7 @@ ext_modules = [Extension("pyreBloom", ext_files, include_dirs=['hiredis', "."])]
 
 setup(
     name = 'pyreBloom',
-    version = "0.1.2",
+    version = "0.1.2-1",
     author = "Dan Lecocq",
     author_email = "dan@seomoz.org",
     license = "MIT License",
